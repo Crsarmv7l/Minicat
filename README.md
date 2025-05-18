@@ -6,7 +6,7 @@ The library will be submitted to Go drivers once I am satisfied with it and fles
 Like my implementation with Radiolib, this version also suffers some bitshifts and shortening when making large 
 transmissions.
 
-Please see here for discussion:
+Please see here for discussion of that issue:
 https://github.com/jgromes/RadioLib/discussions/1138
 
 
