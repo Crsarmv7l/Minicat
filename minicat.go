@@ -36,7 +36,7 @@ func input() (string, string) {
                 		buf[i] = buf[i] - 32 
             		}
         	}
-		cmd := string(buf[:start])  // Add to upper to cmd
+		cmd := string(buf[:start]) 
 		param := string(buf[start+1:end]) // Param as-is
 		return cmd, param
 	} else {
