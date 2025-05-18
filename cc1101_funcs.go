@@ -332,8 +332,8 @@ func (r *radio) transmit (data *[]byte, length uint8) {
 		for{}
 	}
 	r.WriteReg(CC1101_REG_PKTLEN, length)
-	
-    	var duration uint32 = uint32(8000 / (r.bitRate + (r.bitRate/2)))
+	//Calc delay for a byte to leave the fifo
+    	var duration uint32 = uint32(8000 / r.bitRate)
 
 	initialWrite := min(length, uint8(CC1101_FIFO_SIZE))
   	r.WriteRegBurst(CC1101_REG_FIFO, (*data)[:initialWrite])
@@ -352,6 +352,7 @@ func (r *radio) transmit (data *[]byte, length uint8) {
 		if datasent == length {
   			break
   		}
+		//Give time for at least a byte to be out of the fifo
 		time.Sleep(time.Duration(duration) * time.Microsecond)
   	}
   	for {
