@@ -9,3 +9,5 @@ https://github.com/jgromes/RadioLib/discussions/1138
 
 All code here should be considered derivative work of Radiolib except for the code I have committed to radiolib
 (including TX FIFO refills, autosetRXBandwidth, PQT changes and more).
+
+Numerous liberties have been taken with this code base like removing the module abstraction present in radiolib, the combining of functions and other modifications.
