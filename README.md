@@ -1,5 +1,6 @@
 WIP Go implementation of Radiolib's CC1101 functionality specifically for my minicat project, 
-a long running attempt to create a Yardstick One clone with an MCU and the CC1101.
+a long running attempt to create a Yardstick One clone with an MCU and the CC1101. Python library is complete and 
+will be added later.
 
 The library protion that my program uses will be submitted to Go drivers once I am satisfied with it and flesh out more functions.
 
