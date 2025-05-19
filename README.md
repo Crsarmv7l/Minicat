@@ -2,7 +2,7 @@ WIP Go implementation of Radiolib's CC1101 functionality specifically for my min
 a long running attempt to create a Yardstick One clone with an MCU and the CC1101. Python library is complete and 
 will be added later.
 
-The library protion that my program uses will be submitted to Go drivers once I am satisfied with it and flesh out more functions.
+The library portion that my program uses will be submitted to Go drivers once I am satisfied with it and flesh out more functions.
 
 Like my implementation with Radiolib, this version also suffers some bitshifts and shortening when making large 
 transmissions.
@@ -17,4 +17,4 @@ https://github.com/jgromes/RadioLib/discussions/1138
 All code here should be considered derivative work of Radiolib except for the code I have committed to radiolib
 (including TX FIFO refills, autosetRXBandwidth, PQT changes and more).
 
-Numerous liberties have been taken with this code base like removing the module abstraction present in radiolib, the combining of functions and other modifications.
+Numerous liberties have been taken with this codebase like removing the module abstraction present in radiolib, the combining of functions and other modifications.
