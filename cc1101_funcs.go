@@ -362,7 +362,7 @@ func (r *radio) transmit (data *[]byte, length uint8) {
   			r.Strobe(CC1101_CMD_FLUSH_TX)
   			break
   		}
-  		time.Sleep(1 * time.Millisecond)
+  		time.Sleep(time.Duration(duration) * time.Microsecond)
   	}
   	println("Sent")
 }
