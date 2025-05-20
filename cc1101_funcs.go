@@ -342,7 +342,7 @@ func (r *radio) transmit (data *[]byte, length uint8) {
   	
   	r.Strobe(CC1101_CMD_TX)
   	
-  	for {
+  	for datasent < length {
 		//Give time for at least a byte to be out of the fifo
 		time.Sleep(time.Duration(duration) * time.Microsecond)
 		
@@ -352,9 +352,6 @@ func (r *radio) transmit (data *[]byte, length uint8) {
         		r.WriteRegBurst(CC1101_REG_FIFO, (*data)[datasent:datasent+bytesToWrite])
         		datasent += bytesToWrite
 		}
-		if datasent == length {
-  			break
-  		}
   	}
   	for {
   		if r.getRegValue(CC1101_REG_TXBYTES, 6, 0) == 0 {
