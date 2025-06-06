@@ -5,12 +5,15 @@ import (
 	"strconv"
 	"time"
     	"math"
+	"tinygo.org/x/drivers/delay"
 )
 
 
 type radio struct {
 	spi        *machine.SPI
 	cs          machine.Pin
+	GDO0        machine.Pin
+	GDO2        machine.Pin
 	frequency   float32
 	modulation  int8
 	bitRate     float32
@@ -19,12 +22,21 @@ type radio struct {
 	pwr	    int8
 }
 
-func newradio(spi *machine.SPI, cs machine.Pin) *radio {
+func newradio(spi *machine.SPI, cs machine.Pin, gdo0 machine.Pin, gdo2 machine.Pin) *radio {
+	spi.Configure(machine.SPIConfig{
+		Frequency: 4000000,
+		LSBFirst:  false,
+		Mode:      1,
+	})
+	
 	cs.Configure(machine.PinConfig{Mode: machine.PinOutput})
 	cs.High()
+	
 	return &radio {
 	spi:         spi,
 	cs:          cs,
+	GDO0:        gdo0,
+	GDO2:        gdo2,
 	frequency:   CC1101_DEFAULT_FREQ,
 	modulation:  CC1101_MOD_FORMAT_2_FSK,
 	bitRate:     CC1101_DEFAULT_BR,
@@ -58,9 +70,8 @@ func (r *radio) WriteReg(reg uint8, value uint8) {
 
 func (r *radio) WriteRegBurst(reg uint8, data []byte) {
 	reg |= CC1101_CMD_WRITE_BURST
-	tmp := []byte{reg}
 	r.cs.Low()
-	r.spi.Tx(tmp, nil)
+	r.spi.Tx([]byte{reg}, nil)
 	r.spi.Tx(data, nil)
 	r.cs.High()
 }
