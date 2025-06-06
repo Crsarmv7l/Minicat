@@ -6,7 +6,7 @@ import (
 	"machine"
 )
 
-var buf [300]byte
+var buf [270]byte
 func input() (string, string) {
 	var pos int = 0
 
@@ -56,22 +56,15 @@ func input() (string, string) {
 func main() {
 	
 	cs := machine.PA05
+	gdo0 := machine.GPIO25
+	gdo2 := machine.GPIO26
 	spi := machine.SPI0
 	
-	spi.Configure(machine.SPIConfig{
-		Frequency: 4000000,
-		//SCK:       machine.PA11,
-		//SDO:       machine.PA10,
-		//SDI:       machine.PA09,
-		LSBFirst:  false,
-		Mode:      0,
-	})
-	
-	radio := newradio(spi, cs)
+	radio := newradio(spi, cs, gdo0, gdo2)
 		
 	for {
 		//Wait for serial to be ready
-		time.Sleep(8 * time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
 		if machine.Serial.DTR() == true && machine.Serial.RTS() == true {
 			break
 		}
