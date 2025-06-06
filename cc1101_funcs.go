@@ -218,8 +218,8 @@ func (r *radio) setSyncWord(data []byte) {
 		}
 	}
 	//errbits, CarrierSense need to add
-	r.WriteReg(CC1101_REG_SYNC1, data[0]);
-  	r.WriteReg(CC1101_REG_SYNC0, data[1]);
+	r.WriteReg(CC1101_REG_SYNC1, data[0])
+  	r.WriteReg(CC1101_REG_SYNC0, data[1])
 
 }
 
@@ -235,8 +235,8 @@ func (r *radio) setFrequencyDeviation(dev float32) {
 		        println("Error Calculating Freq Dev Exponent and Mantissa")
 		        return
 	        }
-            r.setRegValue(CC1101_REG_DEVIATN, (e << 4), 6, 4);
-            r.setRegValue(CC1101_REG_DEVIATN, m, 2, 0);
+            r.setRegValue(CC1101_REG_DEVIATN, (e << 4), 6, 4)
+            r.setRegValue(CC1101_REG_DEVIATN, m, 2, 0)
             r.freqdev = dev
         }
     }
@@ -248,16 +248,21 @@ func (r *radio) config() {
 	r.standby()
 	r.setRegValue(CC1101_REG_MCSM0, CC1101_FS_AUTOCAL_IDLE_TO_RXTX, 5, 4)
 	r.setRegValue(CC1101_REG_MCSM0, CC1101_PIN_CTRL_OFF, 1, 1)
-  	r.setRegValue(CC1101_REG_IOCFG0, CC1101_GDOX_HIGH_Z, 5, 0);
-  	r.setRegValue(CC1101_REG_IOCFG2, CC1101_GDOX_HIGH_Z, 5, 0);
+  	r.setRegValue(CC1101_REG_IOCFG0, CC1101_GDOX_HIGH_Z, 5, 0)
+  	r.setRegValue(CC1101_REG_IOCFG2, CC1101_GDOX_HIGH_Z, 5, 0)
 
-  	r.packetMode();
+  	r.packetMode(true)
 }
 
-func (r *radio) packetMode() {
+func (r *radio) packetMode(tx bool) {
 	r.setRegValue(CC1101_REG_PKTCTRL1, CC1101_CRC_AUTOFLUSH_OFF | CC1101_APPEND_STATUS_ON | CC1101_ADR_CHK_NONE, 3, 0)
 	r.setRegValue(CC1101_REG_PKTCTRL0, CC1101_WHITE_DATA_OFF | CC1101_PKT_FORMAT_NORMAL, 6, 4)
   	r.setRegValue(CC1101_REG_PKTCTRL0, CC1101_CRC_ON | CC1101_LENGTH_CONFIG_VARIABLE, 2, 0)
+	if tx {
+  		r.Strobe(CC1101_CMD_FLUSH_TX)
+  	} else {
+  		r.Strobe(CC1101_CMD_FLUSH_RX)
+  	}
 }
 
 func (r *radio) setOutputPower(power int8) {
@@ -311,13 +316,13 @@ func (r *radio) setOutputPower(power int8) {
 	//Need funcs for each
 func (r *radio) promiscuous () {
 	//set pqt 0
-	r.setRegValue(CC1101_REG_PKTCTRL1, uint8(0 << 5), 7, 5);
+	r.setRegValue(CC1101_REG_PKTCTRL1, uint8(0 << 5), 7, 5)
 	//disable syncword filter
 	r.setRegValue(CC1101_REG_MDMCFG2, CC1101_SYNC_MODE_NONE, 2, 0)
 	//disable crc
 	r.setRegValue(CC1101_REG_PKTCTRL0, CC1101_CRC_OFF, 2, 2)
 	//disable addr
-	r.setRegValue(CC1101_REG_PKTCTRL1, CC1101_DEVICE_ADDR, 1, 0);
+	r.setRegValue(CC1101_REG_PKTCTRL1, CC1101_DEVICE_ADDR, 1, 0)
 }
 
 func (r *radio) standby() {
