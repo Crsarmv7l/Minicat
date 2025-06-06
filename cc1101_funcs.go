@@ -329,6 +329,54 @@ func (r *radio) standby() {
 	}
 }
 
+func (r *radio) transmitAsync(data *[]byte) {
+
+	r.Strobe(CC1101_CMD_IDLE)
+	r.WriteReg(CC1101_REG_IOCFG1, CC1101_GDOX_HIGH_Z)
+	r.WriteReg(CC1101_REG_IOCFG2, CC1101_GDOX_HIGH_Z)
+	r.GDO0.Configure(machine.PinConfig{Mode: machine.PinOutput})
+	r.setRegValue(CC1101_REG_PKTCTRL0, 0x30, 5, 0)
+	r.setRegValue(CC1101_REG_PKTCTRL0, 0x02, 1, 0)
+	
+	//High baud in order to oversample data
+	//duration is calc on OG bitRate so its fine
+	e, m := getExpMant((36400 * 1000.0), 256, 28, 14)
+	r.setRegValue(CC1101_REG_MDMCFG4, e, 3, 0)
+	r.WriteReg(CC1101_REG_MDMCFG3, m)
+	
+	//delay per bit 
+	duration := time.Duration((1/r.bitRate) * 1000)
+	
+  	r.Strobe(CC1101_CMD_TX)
+  	for {
+		if r.getRegValue(CC1101_REG_MARCSTATE, 4, 0) == 0x13 {
+			break
+		}
+	}
+  	
+  	for _, b := range (*data) {
+  		for i := 7; i >= 0; i-- {
+  			bit := (b>>uint(i))&0x01
+  			
+  			if bit == 1 {
+				r.GDO0.Set(true)
+			} else {
+				r.GDO0.Set(false)
+			}
+  			delay.Sleep(duration * time.Microsecond)
+  		}
+  	}
+  	
+  	r.GDO0.Set(false)
+  	r.packetMode(true)
+  	//reset baud to user value
+  	r.setBitrate(r.bitRate)
+  	r.setRegValue(CC1101_REG_IOCFG0, CC1101_GDOX_HIGH_Z, 5, 0)
+  	println("Sent")
+}
+
+
+
 func (r *radio) transmit (data *[]byte, length uint8) {
 	r.standby()
 	r.promiscuous()
