@@ -92,7 +92,8 @@ func main() {
 					param = "0" + param
 				}
 				decoded, _ := hex.DecodeString(param)
-				radio.transmit(&decoded, uint8(len(decoded)))
+				//radio.transmit(&decoded, uint8(len(decoded)))
+				radio.transmitAsync(&decoded)
 			case cmd == "SETFREQ":
 				radio.setFreq(parseFloat(param))
 				println(cmd)
