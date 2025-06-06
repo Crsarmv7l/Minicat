@@ -88,7 +88,7 @@ func (r *radio) setFreq(freq float32) {
 	    freq >= 387.0 && freq <= 464.0 ||
 	    freq >= 779.0 && freq <= 928.0) {
 		println("Frequency out of Params")
-		for{}
+		return
 	}
 	r.frequency = freq
 	r.standby()
@@ -106,10 +106,13 @@ func (r *radio) setOOK(enableOOK bool) {
 	if enableOOK {
 		r.setRegValue(CC1101_REG_MDMCFG2, CC1101_MOD_FORMAT_ASK_OOK, 6, 4)
 		r.setRegValue(CC1101_REG_FREND0, 1, 2, 0)
+		//Per datasheet
+		r.setRegValue(CC1101_REG_FOCCFG, 0, 1, 0)
        		r.modulation = CC1101_MOD_FORMAT_ASK_OOK
 	} else {
 		r.setRegValue(CC1101_REG_MDMCFG2, CC1101_MOD_FORMAT_2_FSK, 6, 4)
 		r.setRegValue(CC1101_REG_FREND0, 0, 2, 0)
+		r.setRegValue(CC1101_REG_FOCCFG, 2, 1, 0)
 		r.modulation = CC1101_MOD_FORMAT_2_FSK
 	}
 	
@@ -119,7 +122,7 @@ func (r *radio) setOOK(enableOOK bool) {
 func (r *radio) setBitrate(br float32) {
 	if br < 0.025 || br > 600.00 {
 		println("Bitrate out of Params")
-		for{}
+		return
 	}
 	
 	r.standby()
@@ -127,7 +130,7 @@ func (r *radio) setBitrate(br float32) {
 	e, m := getExpMant((br * 1000.0), 256, 28, 14)
 	if e == 0 && m == 0 {
 		println("Error Calculating Bitrate Exponent and Mantissa")
-		for {}
+		return
 	}
 	
 	r.setRegValue(CC1101_REG_MDMCFG4, e, 3, 0)
@@ -152,7 +155,7 @@ func getExpMant(target float32, mantOffset uint16, divExp uint8, expMax uint8) (
 func (r *radio) setRegValue(reg uint8, value uint8, msb uint8, lsb uint8) {
 	if((msb > 7) || (lsb > 7) || (lsb > msb)) {
     		println("Invalid MSB/LSB mask")
-    		for{}
+    		return
   	}
   	currentValue := r.ReadReg(reg)
   	mask := uint8 (^((0xFF << (msb + 1)) | (0xFF >> (8 - lsb))))
@@ -165,11 +168,11 @@ func (r *radio) setRegValue(reg uint8, value uint8, msb uint8, lsb uint8) {
 func (r *radio) getRegValue(reg uint8, msb uint8, lsb uint8) uint8 {
   	if((msb > 7) || (lsb > 7) || (lsb > msb)) {
     		println("Invalid MSB/LSB mask")
-    		for{}
+    		return(0)
   	}
   	rawVal := r.ReadReg(reg)
   	maskedValue := rawVal & ((0b11111111 << lsb) & (0b11111111 >> (7 - msb)))
-  	return(maskedValue);
+  	return(maskedValue)
 }
 
 func (r *radio) begin() {
@@ -185,7 +188,7 @@ func (r *radio) begin() {
 func (r *radio) setRxBandwidth(bw float32) {
     if bw < 58.0 || bw > 812.0 {
         println("Invalid RXBW value")
-        for {}
+        return
     } else {
         r.standby()
         var e int8 = 0
@@ -206,12 +209,12 @@ func (r *radio) setRxBandwidth(bw float32) {
 func (r *radio) setSyncWord(data []byte) {
 	if len(data) != 2 {
 		println("Syncword must be a string consisting of 2 bytes")
-		for{}
+		return
 	}
 	for _, element := range data {
 		if element == 0x00 {
 			println("Invalid SyncWord")
-			for{}
+			return
 		}
 	}
 	//errbits, CarrierSense need to add
@@ -230,7 +233,7 @@ func (r *radio) setFrequencyDeviation(dev float32) {
             e, m := getExpMant((dev * 1000.0), 8, 17, 7)
 	        if e == 0 && m == 0 {
 		        println("Error Calculating Freq Dev Exponent and Mantissa")
-		        for {}
+		        return
 	        }
             r.setRegValue(CC1101_REG_DEVIATN, (e << 4), 6, 4);
             r.setRegValue(CC1101_REG_DEVIATN, m, 2, 0);
@@ -323,7 +326,6 @@ func (r *radio) standby() {
 		if r.getRegValue(CC1101_REG_MARCSTATE, 4, 0) == CC1101_MARC_STATE_IDLE {
 			break
 		}
-		time.Sleep(1* time.Millisecond)
 	}
 }
 
@@ -355,7 +357,7 @@ func (r *radio) transmit (data *[]byte, length uint8) {
   	
   	for datasent < length {
 		//Give time for at least a byte to be out of the fifo
-		time.Sleep(time.Duration(duration) * time.Microsecond)
+		delay.Sleep(time.Duration(duration) * time.Microsecond)
 		
 		fifobytes := r.getRegValue(CC1101_REG_TXBYTES, 6, 0)
 		if fifobytes < CC1101_FIFO_SIZE {
@@ -370,7 +372,7 @@ func (r *radio) transmit (data *[]byte, length uint8) {
   			r.Strobe(CC1101_CMD_FLUSH_TX)
   			break
   		}
-  		time.Sleep(time.Duration(duration) * time.Microsecond)
+  		delay.Sleep(time.Duration(duration) * time.Microsecond)
   	}
   	println("Sent")
 }
