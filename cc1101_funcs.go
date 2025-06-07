@@ -77,9 +77,8 @@ func (r *radio) WriteRegBurst(reg uint8, data []byte) {
 }
 
 func (r *radio) Strobe(reg uint8) {
-	tx := []byte{reg}
 	r.cs.Low()
-	r.spi.Tx(tx, nil)
+	r.spi.Tx([]byte{reg}, nil)
 	r.cs.High()
 }
 
