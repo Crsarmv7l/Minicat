@@ -361,8 +361,7 @@ func (r *radio) transmitAsync(data *[]byte) {
   	
   	for _, b := range (*data) {
   		for i := 7; i >= 0; i-- {
-  			bit := (b>>uint(i))&0x01
-			r.GDO0.Set(bit != 0)
+			r.GDO0.Set(((b>>uint(i))&0x01) != 0)
  			delay.Sleep(duration * time.Microsecond)
   		}
   	}
