@@ -53,18 +53,16 @@ func (r *radio) ReadReg(reg uint8) uint8 {
    	}else {
    		reg |= CC1101_CMD_READ_SINGLE
    	}
-	tx := []byte{reg, 0x00}
 	rx := make([]byte, 2)
 	r.cs.Low()
-	r.spi.Tx(tx, rx)
+	r.spi.Tx([]byte{reg, 0x00}, rx)
 	r.cs.High()
 	return rx[1]
 }
 
 func (r *radio) WriteReg(reg uint8, value uint8) {
-	tx := []byte{reg, value}
 	r.cs.Low()
-	r.spi.Tx(tx, nil)
+	r.spi.Tx([]byte{reg, value}, nil)
 	r.cs.High()
 }
 
