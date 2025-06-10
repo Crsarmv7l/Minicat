@@ -15,6 +15,6 @@ https://github.com/jgromes/RadioLib/discussions/1138
 **Radiolib:**
 
 All code here should be considered derivative work of Radiolib EXCEPT for the code I have committed to radiolib
-(including TX FIFO refills, autosetRXBandwidth, PQT changes and more) or not committed to Radiolib Async TX here.
+(including TX FIFO refills, autosetRXBandwidth, PQT changes and more) or not committed to Radiolib; modulated Async TX.
 
 Numerous liberties have been taken with this codebase like removing the module abstraction present in radiolib, the combining of functions and other modifications.
